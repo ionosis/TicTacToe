@@ -4,28 +4,26 @@ class Main {
 
     public static void main(String[] args) {
 
-
         Scanner in = new Scanner(System.in);
+        TicTacToe ttt = new TicTacToe();
+        ttt.board = in.nextLine();
 
-        String board = in.nextLine();
+        ttt.start(ttt.board);
 
-        TicTacToe.start(board);
+        ttt.nextMove = in.nextLine(); // take user input
 
-        String nextMove = in.nextLine(); // take user input
-
-        while (!TicTacToe.moveIsValid(nextMove)) {
-            nextMove = in.nextLine();
+        while (!ttt.moveIsValid()) {
+            ttt.nextMove = in.nextLine();
         }
 
         TicTacToe.applyMove(TicTacToe.column, TicTacToe.row);
-        TicTacToe.printBoard(board);
     }
 }
 
 
 class TicTacToe {
-    //public static String board;
-    //public static String nextMove;
+    public static String board;
+    public static String nextMove;
     public static int column;
     public static int row;
     public static char[][] array = new char[3][3];
@@ -33,10 +31,10 @@ class TicTacToe {
 
     public static void start(String board) {
         System.out.println("Enter cells: " + board);
-        printBoard(board);
+        printBoard();
     }
 
-    public static void printBoard(String board) {
+    public static void printBoard() {
         array = new char[][]{
                 {board.charAt(0), board.charAt(1), board.charAt(2)},
                 {board.charAt(3), board.charAt(4), board.charAt(5)},
@@ -68,9 +66,9 @@ class TicTacToe {
         System.out.println(h);
     }
 
-    public static boolean moveIsValid(String nextMove) {
+    public static boolean moveIsValid() {
         boolean flag = true;
-        if (!TicTacToe.canParseToInt(nextMove)) {
+        if (!TicTacToe.canParseToInt(TicTacToe.nextMove)) {
             flag = false;
         } else if (!TicTacToe.coordinatesAreValid(TicTacToe.column, TicTacToe.row)) {
             flag = false;
@@ -135,11 +133,11 @@ class TicTacToe {
                 array[array.length - 1 - i][j] = temp;
             }
         }
-
+        printBoard();
     }
 
 
-   /* public static void checkGameState() {
+    public static void checkGameState() {
         // winner
         boolean winner = false;
         int winCount = 0;
@@ -232,7 +230,7 @@ class TicTacToe {
         int o = 'O';
         int countX = 0;
         int countO = 0;
-        //int countSpaces = 0;
+        int countSpaces = 0;
         boolean pending = false;
         if (!winner) {
             for (int i = 0; i < array.length; i++) {
@@ -259,6 +257,7 @@ class TicTacToe {
             System.out.println("impossible " + winCount);
 
         }
-    } */
-}
+    }
 
+
+}
