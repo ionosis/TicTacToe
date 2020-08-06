@@ -4,26 +4,28 @@ class Main {
 
     public static void main(String[] args) {
 
+
         Scanner in = new Scanner(System.in);
-        TicTacToe ttt = new TicTacToe();
-        ttt.board = in.nextLine();
 
-        ttt.start(ttt.board);
+        String board = in.nextLine();
 
-        ttt.nextMove = in.nextLine(); // take user input
+        TicTacToe.start(board);
 
-        while (!ttt.moveIsValid()) {
-            ttt.nextMove = in.nextLine();
+        String nextMove = in.nextLine(); // take user input
+
+        while (!TicTacToe.moveIsValid(nextMove)) {
+            nextMove = in.nextLine();
         }
 
-        TicTacToe.applyMove(TicTacToe.column, TicTacToe.row);
+        TicTacToe.printMove();
+        TicTacToe.printBoard(board);
     }
 }
 
 
 class TicTacToe {
-    public static String board;
-    public static String nextMove;
+    //public static String board;
+    //public static String nextMove;
     public static int column;
     public static int row;
     public static char[][] array = new char[3][3];
@@ -31,44 +33,35 @@ class TicTacToe {
 
     public static void start(String board) {
         System.out.println("Enter cells: " + board);
-        printBoard();
+        int index = 0;
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                array[i][j] = board.charAt(index);
+                ++index;
+            }
+        }
+        printBoard(board);
     }
 
-    public static void printBoard() {
-        array = new char[][]{
-                {board.charAt(0), board.charAt(1), board.charAt(2)},
-                {board.charAt(3), board.charAt(4), board.charAt(5)},
-                {board.charAt(6), board.charAt(7), board.charAt(8)}
-        };
-
+    public static void printBoard(String board) {
+        String h = "---------";
         char pipe = '|';
 
-        String h = "---------";
-
         System.out.println(h);
-        System.out.print(pipe + " ");
-        System.out.print(array[0][0] + " ");
-        System.out.print(array[0][1] + " ");
-        System.out.println(array[0][2] + " " + pipe);
-
-        // row2
-        System.out.print(pipe + " ");
-        System.out.print(array[1][0] + " ");
-        System.out.print(array[1][1] + " ");
-        System.out.println(array[1][2] + " " + pipe);
-
-        //row3
-
-        System.out.print(pipe + " ");
-        System.out.print(array[2][0] + " ");
-        System.out.print(array[2][1] + " ");
-        System.out.println(array[2][2] + " " + pipe);
+        for (int i = 0; i < array.length; i++) {
+            System.out.print(pipe + " ");
+            for (int j = 0; j < array[i].length; j++) {
+                System.out.print(array[i][j] + " ");
+            }
+            System.out.print(pipe);
+            System.out.println();
+        }
         System.out.println(h);
     }
 
-    public static boolean moveIsValid() {
+    public static boolean moveIsValid(String nextMove) {
         boolean flag = true;
-        if (!TicTacToe.canParseToInt(TicTacToe.nextMove)) {
+        if (!TicTacToe.canParseToInt(nextMove)) {
             flag = false;
         } else if (!TicTacToe.coordinatesAreValid(TicTacToe.column, TicTacToe.row)) {
             flag = false;
@@ -84,6 +77,14 @@ class TicTacToe {
             nextMove = nextMove.replaceAll(" ", "");
             column = Integer.parseInt(nextMove.substring(0, 1));
             row = Integer.parseInt(nextMove.substring(1, 2));
+            if (row == 1) {
+                row = 3;
+            } else if (row == 3) {
+                row = 1;
+            }
+            --row;
+            --column;
+
             return true;
         } catch (NumberFormatException numberFormatException) {
             System.out.println("You should enter numbers");
@@ -93,10 +94,10 @@ class TicTacToe {
 
     public static boolean coordinatesAreValid(int column, int row) {
         boolean flag = true;
-        if (column > 3 || row > 3) {
+        if (column > 2 || row > 2) {
             System.out.println("Coordinates should be from 1 to 3!");
             flag = false;
-        } else if (array[row - 1][column - 1] != 95) {
+        } else if (array[row][column] != 95) {
             System.out.println("This cell is occupied! Choose another one!");
             flag = false;
         }
@@ -105,7 +106,7 @@ class TicTacToe {
 
     public static boolean cellAvailable(int column, int row) {
         boolean flag = true;
-        if (array[row - 1][column - 1] != 95) {
+        if (array[row][column] != 95) {
             System.out.println("This cell is occupied! Choose another one!");
             flag = false;
         }
@@ -113,31 +114,16 @@ class TicTacToe {
         return flag;
     }
 
-    public static void applyMove(int column, int row) {
-        for (int i = 0; i < (array.length / 2); i++) {
-            for (int j = 0; j < array[i].length; j++) {
-                char temp = array[i][j];
-                array[i][j] = array[array.length - 1 - i][j];
-                array[array.length - 1 - i][j] = temp;
-            }
-        }
+    public static void printMove() {
 
         System.out.println("Enter the coordinates: " + column + " " + row);
-        array[row - 1][column - 1] = 'X';
+        TicTacToe.array[row][column] = 'X';
 
 
-        for (int i = 0; i < array.length / 2; i++) {
-            for (int j = 0; j < array[i].length; j++) {
-                char temp = array[i][j];
-                array[i][j] = array[array.length - 1 - i][j];
-                array[array.length - 1 - i][j] = temp;
-            }
-        }
-        printBoard();
     }
 
 
-    public static void checkGameState() {
+   /* public static void checkGameState() {
         // winner
         boolean winner = false;
         int winCount = 0;
@@ -230,7 +216,7 @@ class TicTacToe {
         int o = 'O';
         int countX = 0;
         int countO = 0;
-        int countSpaces = 0;
+        //int countSpaces = 0;
         boolean pending = false;
         if (!winner) {
             for (int i = 0; i < array.length; i++) {
@@ -257,7 +243,6 @@ class TicTacToe {
             System.out.println("impossible " + winCount);
 
         }
-    }
-
-
+    } */
 }
+
