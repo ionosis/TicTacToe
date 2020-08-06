@@ -1,6 +1,6 @@
 import java.util.Scanner;
 
-class Main {
+public class Main {
 
     public static void main(String[] args) {
 
@@ -17,7 +17,7 @@ class Main {
             nextMove = in.nextLine();
         }
 
-        TicTacToe.applyMove(TicTacToe.column, TicTacToe.row);
+        TicTacToe.printMove();
         TicTacToe.printBoard(board);
     }
 }
@@ -33,38 +33,29 @@ class TicTacToe {
 
     public static void start(String board) {
         System.out.println("Enter cells: " + board);
+        int index = 0;
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                array[i][j] = board.charAt(index);
+                ++index;
+            }
+        }
         printBoard(board);
     }
 
     public static void printBoard(String board) {
-        array = new char[][]{
-                {board.charAt(0), board.charAt(1), board.charAt(2)},
-                {board.charAt(3), board.charAt(4), board.charAt(5)},
-                {board.charAt(6), board.charAt(7), board.charAt(8)}
-        };
-
+        String h = "---------";
         char pipe = '|';
 
-        String h = "---------";
-
         System.out.println(h);
-        System.out.print(pipe + " ");
-        System.out.print(array[0][0] + " ");
-        System.out.print(array[0][1] + " ");
-        System.out.println(array[0][2] + " " + pipe);
-
-        // row2
-        System.out.print(pipe + " ");
-        System.out.print(array[1][0] + " ");
-        System.out.print(array[1][1] + " ");
-        System.out.println(array[1][2] + " " + pipe);
-
-        //row3
-
-        System.out.print(pipe + " ");
-        System.out.print(array[2][0] + " ");
-        System.out.print(array[2][1] + " ");
-        System.out.println(array[2][2] + " " + pipe);
+        for (int i = 0; i < array.length; i++) {
+            System.out.print(pipe + " ");
+            for (int j = 0; j < array[i].length; j++) {
+                System.out.print(array[i][j] + " ");
+            }
+            System.out.print(pipe);
+            System.out.println();
+        }
         System.out.println(h);
     }
 
@@ -86,6 +77,14 @@ class TicTacToe {
             nextMove = nextMove.replaceAll(" ", "");
             column = Integer.parseInt(nextMove.substring(0, 1));
             row = Integer.parseInt(nextMove.substring(1, 2));
+            if (row == 1) {
+                row = 3;
+            } else if (row == 3) {
+                row = 1;
+            }
+            --row;
+            --column;
+
             return true;
         } catch (NumberFormatException numberFormatException) {
             System.out.println("You should enter numbers");
@@ -95,10 +94,10 @@ class TicTacToe {
 
     public static boolean coordinatesAreValid(int column, int row) {
         boolean flag = true;
-        if (column > 3 || row > 3) {
+        if (column > 2 || row > 2) {
             System.out.println("Coordinates should be from 1 to 3!");
             flag = false;
-        } else if (array[row - 1][column - 1] != 95) {
+        } else if (array[row][column] != 95) {
             System.out.println("This cell is occupied! Choose another one!");
             flag = false;
         }
@@ -107,7 +106,7 @@ class TicTacToe {
 
     public static boolean cellAvailable(int column, int row) {
         boolean flag = true;
-        if (array[row - 1][column - 1] != 95) {
+        if (array[row][column] != 95) {
             System.out.println("This cell is occupied! Choose another one!");
             flag = false;
         }
@@ -115,26 +114,11 @@ class TicTacToe {
         return flag;
     }
 
-    public static void applyMove(int column, int row) {
-        for (int i = 0; i < (array.length / 2); i++) {
-            for (int j = 0; j < array[i].length; j++) {
-                char temp = array[i][j];
-                array[i][j] = array[array.length - 1 - i][j];
-                array[array.length - 1 - i][j] = temp;
-            }
-        }
+    public static void printMove() {
 
         System.out.println("Enter the coordinates: " + column + " " + row);
-        array[row - 1][column - 1] = 'X';
+        TicTacToe.array[row][column] = 'X';
 
-
-        for (int i = 0; i < array.length / 2; i++) {
-            for (int j = 0; j < array[i].length; j++) {
-                char temp = array[i][j];
-                array[i][j] = array[array.length - 1 - i][j];
-                array[array.length - 1 - i][j] = temp;
-            }
-        }
 
     }
 
