@@ -1,54 +1,84 @@
 import java.util.Scanner;
 
+
 public class Main {
 
     public static void main(String[] args) {
 
-
         Scanner in = new Scanner(System.in);
+        TicTacToe game = new TicTacToe();
 
-        String board = in.nextLine();
+        int moveCount = 1; // distinguishes player turn. odd is X, even is O
+        String move = "";
 
-        TicTacToe.start(board);
 
-        String nextMove = in.nextLine(); // take user input
+        game.start();
+        // game loop here
 
-        while (!TicTacToe.moveIsValid(nextMove)) {
-            nextMove = in.nextLine();
+        while (!game.validWin() || !game.setDraw()) {
+
+            // first move
+            while (!game.moveIsValid(move)) {
+                move = in.next();
+
+
+                game.printMove(moveCount);
+
+                game.printBoard();
+
+                ++moveCount;
+
+                if (game.validWin()) {
+                    break;
+                } else if (game.setDraw()) {
+                    break;
+                }
+                System.out.println("Enter the coordinates: ");
+
+            }
         }
-
-        TicTacToe.printMove();
-        TicTacToe.printBoard(board);
     }
 }
 
 
 class TicTacToe {
-    //public static String board;
-    //public static String nextMove;
+
     public static int column;
     public static int row;
     public static char[][] array = new char[3][3];
+    public static boolean pending = false;
+    //public boolean winner = false;
+    public static int winCount = 0;
+    //public boolean draw = false;
+    public static char[] coord = new char[1];
 
 
-    public static void start(String board) {
-        System.out.println("Enter cells: " + board);
-        int index = 0;
+    public void start() {
+        //System.out.println("Welcome to TicTacToe!");
+
+        // populating the board. this was needed in a previous stage of developement.
+        // is it needed still?
+
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
-                array[i][j] = board.charAt(index);
-                ++index;
+                array[i][j] = ' ';
+
             }
         }
-        printBoard(board);
+        printBoard();
+
+        //System.out.println("First move is yours!");
+
     }
 
-    public static void printBoard(String board) {
+    public void printBoard() {
+        // This can be optimized by including the pipe and hyphen characters in the loop
+
         String h = "---------";
         char pipe = '|';
 
         System.out.println(h);
-        for (int i = 0; i < array.length; i++) {
+        for (int i = 0; i < array.length; i++) { // for-each maybe?
             System.out.print(pipe + " ");
             for (int j = 0; j < array[i].length; j++) {
                 System.out.print(array[i][j] + " ");
@@ -59,24 +89,26 @@ class TicTacToe {
         System.out.println(h);
     }
 
-    public static boolean moveIsValid(String nextMove) {
+    public boolean moveIsValid(String move) {
         boolean flag = true;
-        if (!TicTacToe.canParseToInt(nextMove)) {
+        if (!canParseToInt(move)) {
             flag = false;
-        } else if (!TicTacToe.coordinatesAreValid(TicTacToe.column, TicTacToe.row)) {
+        } else if (!coordinatesAreValid(column, row)) {
             flag = false;
-        } else if (!TicTacToe.cellAvailable(TicTacToe.column, TicTacToe.row)) {
+        } else if (!cellAvailable(column, row)) {
             flag = false;
         }
         return flag;
     }
 
-    public static boolean canParseToInt(String nextMove) {
-
+    public static boolean canParseToInt(String move) {
+        move = move.replaceAll(" ", "");
+        coord = move.toCharArray();
         try {
-            nextMove = nextMove.replaceAll(" ", "");
-            column = Integer.parseInt(nextMove.substring(0, 1));
-            row = Integer.parseInt(nextMove.substring(1, 2));
+
+
+            column = coord[0];
+            row = coord[1]; //Integer.parseInt(move.substring(1, 2));
             if (row == 1) {
                 row = 3;
             } else if (row == 3) {
@@ -97,39 +129,41 @@ class TicTacToe {
         if (column > 2 || row > 2) {
             System.out.println("Coordinates should be from 1 to 3!");
             flag = false;
-        } else if (array[row][column] != 95) {
-            System.out.println("This cell is occupied! Choose another one!");
-            flag = false;
         }
         return flag;
     }
 
     public static boolean cellAvailable(int column, int row) {
-        boolean flag = true;
-        if (array[row][column] != 95) {
+        boolean flag = false;
+        if (array[row][column] != 32) {
             System.out.println("This cell is occupied! Choose another one!");
-            flag = false;
+
+        } else {
+            flag = true;
         }
 
         return flag;
     }
 
-    public static void printMove() {
+    public void printMove(int moveCount) {
 
-        System.out.println("Enter the coordinates: " + column + " " + row);
-        TicTacToe.array[row][column] = 'X';
+        System.out.println("Enter the coordinates: ");
+        if (moveCount % 2 != 0) {
+            TicTacToe.array[row][column] = 'X';
+        } else {
+            TicTacToe.array[row][column] = 'O';
+        }
 
 
     }
 
 
-   /* public static void checkGameState() {
-        // winner
+    public boolean validWin() {
         boolean winner = false;
-        int winCount = 0;
-// winByRow
+        String oWins = "O wins";
+        String xWins = "X wins";
 
-
+        //Win by row
         for (int i = 0; i < array.length; i++) {
             int rowSum = 0;
             for (int j = 0; j < array[i].length; j++) {
@@ -145,11 +179,7 @@ class TicTacToe {
                 ++winCount;
             }
         }
-
-
-// winByColumn
-
-
+        // winByColumn
         for (int i = 0; i < array.length; i++) {
             int colSum = 0;
             for (int j = 0; j < array.length; j++) {
@@ -157,18 +187,16 @@ class TicTacToe {
 
             }
             if (colSum == 237) {
-                System.out.println("O wins col" + i);
+                System.out.println(oWins);
                 winner = true;
                 ++winCount;
             } else if (colSum == 264) {
-                System.out.println("X wins col" + i);
+                System.out.println(xWins);
                 winner = true;
                 ++winCount;
             }
         }
-
-
-// winByPrimaryDiagonal
+        // winByPrimaryDiagonal
         int diagSum = 0;
         for (int i = 0; i < array.length; ++i) {
 
@@ -187,11 +215,8 @@ class TicTacToe {
                 ++winCount;
             }
         }
-
-
-// winBySecondaryDiagonal
+        // winBySecondaryDiagonal
         int diagSum2 = 0;
-
         for (int i = 0; i < array.length; i++) {
             for (int j = 0; j < array[i].length; j++) {
                 if (i + j == array[i].length - 1) {
@@ -199,26 +224,30 @@ class TicTacToe {
                 }
             }
         }
-
         if (diagSum2 == 264) {
-            System.out.println("X wins secondary diagonal");
+            System.out.println(xWins);
             winner = true;
             ++winCount;
         } else if (diagSum2 == 237) {
-            System.out.println("O wins secondary diagonal");
+            System.out.println(oWins);
             winner = true;
             ++winCount;
         }
+        return winner;
+    }
 
-        // draw
-        int space = '_'; //95
+
+    public boolean setDraw() {
+        boolean draw = false;
+
+        int space = 35;
         int x = 'X';
         int o = 'O';
         int countX = 0;
         int countO = 0;
-        //int countSpaces = 0;
-        boolean pending = false;
-        if (!winner) {
+        int countSpaces = 9;
+
+        if (!validWin()) {
             for (int i = 0; i < array.length; i++) {
                 for (int j = 0; j < array.length; j++) {
                     if (array[i][j] == x) {
@@ -228,21 +257,27 @@ class TicTacToe {
                     }
                     if (array[i][j] == space) {
                         pending = true;
-                        ++countSpaces;
+                        --countSpaces;
                     }
                 }
             }
-            if (!pending) {
-                System.out.println("draw");
-            } else {
-                System.out.println("pending");
+            if (!validWin()) {
+                System.out.println("Draw");
+                draw = true;
+
             }
         }
-        // impossible
-        if (countO > countX + 1 || countX > countO + 1 || winCount > 1) {
-            System.out.println("impossible " + winCount);
 
-        }
-    } */
+
+        return draw;
+
+    }
 }
 
+// impossible
+        /*public static void notPossible() {
+            if (countO > countX + 1 || countX > countO + 1 || winCount > 1) {
+                System.out.println("impossible " + winCount);
+
+            }
+        }*/
