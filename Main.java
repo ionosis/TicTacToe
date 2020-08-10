@@ -14,7 +14,7 @@ public class Main {
         // game loop here
         while (!game.validWin() || !game.setDraw(moveCount)) { // initialize game loop
             // first move, additional moves.
-            String move = in.next(); // take user input
+            String move = in.nextLine(); // take user input
 
             if (game.moveIsValid(move)) { // if move isnt valid, error msg and user input expected
 
